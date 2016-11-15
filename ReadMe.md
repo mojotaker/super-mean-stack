@@ -1,0 +1,1 @@
+Vagrant box provisioned for javascript development
