@@ -1,4 +1,4 @@
-$node_version = "v6.0.0"
+$node_version = "v6.9.1"
 
 
 Exec { path => ['/usr/local/bin','/usr/local/sbin','/usr/bin/','/usr/sbin','/bin','/sbin', "/home/vagrant/nvm/versions/node/${node_version}/bin"] }
@@ -22,6 +22,13 @@ class { 'nvm':
   require => [Class["build_essential_install"]]
 }
 
+# Make sure our code directory has proper permissions
+file { '/home/vagrant/*':
+  ensure => "directory",
+  owner  => "vagrant",
+  group  => "vagrant"
+}
+
 define npm( $directory="/home/vagrant/nvm/versions/node${node_version}/lib/node_modules" ) {
   exec { "install-${name}-npm-package":
     unless => "test -d ${directory}/${name}",
@@ -31,16 +38,12 @@ define npm( $directory="/home/vagrant/nvm/versions/node${node_version}/lib/node_
   }
 }
 
+
+
 # Global npm modules
-npm { ["nodemon", "grunt-cli", "bower"]:
+npm { ["nodemon", "grunt-cli", "bower", "webpack@\">=1.3.0 <3\"", "webpack-dev-server@\"^1.14.1\""]:
 }
 
-# Make sure our code directory has proper permissions
-file { '/home/vagrant/*':
-  ensure => "directory",
-  owner  => "vagrant",
-  group  => "vagrant"
-}
 
 
 
@@ -51,10 +54,12 @@ include npm_install
 include nginx
 
 #install Mongodb
-class {'::mongodb::server':
+/*mongodbclass {'::mongodb::server':
   port    => 27018,
   verbose => true,
-}
+}*/
+
+include '::mongodb::server'
 
 #install Git
 #include git
